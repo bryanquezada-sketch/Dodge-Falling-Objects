@@ -16,42 +16,10 @@ export class Game extends Scene
         Phaser.Display.Bounds.SetBottom(this.player, this.scale.height);
 
         /*
-        this.ground = this.add.tileSprite(0, 328);
+        this.ground = this.add.tileSprite(0, 328, WIDTH, HEIGHT, 'TEXTURE', 'TEXTUREFRAME');
         this.physics.add.existing(this.ground, true);
         this.physics.add.collider(this.player, this.ground);
         */
-
-       this.fallingObjects = this.physics.add.group({
-        defaultKey: 'object',
-        maxSize: 50
-       });
-
-       //this.fallingObjects.body.setCircle(16);
-//       this.fallingObjects.body.setAllowGravity(false);
-
-       //Math.floor(...): Rounds the result down to the nearest whole integer. This ensures you do not have a "partial" lane if the screen width isn't perfectly divisible by 16.
-       this.totalLanes = Math.floor(this.scale.width / 16);
-
-       //Array.from({ length: ... }): Creates a new array with a specific number of empty slots based on totalLanes.
-       this.spawnLanes = Array.from({ length: this.totalLanes }, (v, i) => i * 16);
-       
-       /* (i * 16) + 8: Calculates the start of the lane (i * 16) and adds half of the lane width (8).
-       Logic: Most Phaser sprites use a center-origin (0.5). If you spawn a sprite at x = 0, half the sprite will be off-screen to the left. By adding 
-        8, the sprite’s center aligns with the middle of the 
-        16-pixel lane.
-        Result: this.spawnLanes becomes an array of center-positions: [8, 24, 40, 56, ...].
-       this.spawnLanes = Array.from({ length: this.totalLanes }, (v, i) => (i * 16) + 8);
-       */
-
-       
-    
-        this.cursors = this.input.keyboard.createCursorKeys();
-        this.wasd = this.input.keyboard.addKeys ({
-            //up: Phaser.Input.Keyboard.KeyCodes.W,
-            //down: Phaser.Input.Keyboard.KeyCodes.S,
-            left: Phaser.Input.Keyboard.KeyCodes.A,
-            right: Phaser.Input.Keyboard.KeyCodes.D,
-        })
 
         this.stopBuffer = 0;
         this.lastXKey = 'none'
@@ -61,11 +29,44 @@ export class Game extends Scene
             } else if (e.code === 'KeyD' || e.code === 'ArrowRight') {
                 this.lastXKey = 'right';
             }
-            });
+        });
 
+        this.fallingObjects = this.physics.add.group({
+            defaultKey: 'object',
+            maxSize: 50
+        });
+
+
+        //Math.floor(...): Rounds the result down to the nearest whole integer. 
+        //This ensures you do not have a "partial" lane if the screen width isn't perfectly divisible by 16.
+        this.totalLanes = Math.floor(this.scale.width / 16);
+
+        //Array.from({ length: ... }): Creates a new array with a specific number of empty slots based on totalLanes.
+        this.spawnLanes = Array.from({ length: this.totalLanes }, (v, i) => (i * 16) + 8);
+
+        this.cursors = this.input.keyboard.createCursorKeys();
+        this.wasd = this.input.keyboard.addKeys ({
+            //up: Phaser.Input.Keyboard.KeyCodes.W,
+            //down: Phaser.Input.Keyboard.KeyCodes.S,
+            left: Phaser.Input.Keyboard.KeyCodes.A,
+            right: Phaser.Input.Keyboard.KeyCodes.D,
+        });
+
+        this.input.keyboard.on('keydown-SPACE', this.spawnObjects, this);
+        this.input.keyboard.on('keydown', (event) => {
+            console.log("Key pressed:", event.key);
+        });
         // -- END OF CREATE --
     }
 
+    spawnObjects ()
+    {
+        console.log('SPACE IS HIT');
+        this.fallingObject = this.fallingObjects.get(Phaser.Math.RND.pick(this.spawnLanes), 0);
+        this.fallingObject.setActive(true);
+        this.fallingObject.setVisible(true);
+        this.fallingObject.body.setCircle(16);
+    }
     update ()
     {
         const playerSpeed = 160
@@ -92,6 +93,7 @@ export class Game extends Scene
                 this.lastXKey = 'none';
             }
         }
+
 
         // -- END OF UPDATE --
     }
