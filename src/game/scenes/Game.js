@@ -26,7 +26,7 @@ export class Game extends Scene
         maxSize: 50
        });
 
-       this.fallingObjects.body.setCircle(16);
+       //this.fallingObjects.body.setCircle(16);
 //       this.fallingObjects.body.setAllowGravity(false);
 
        //Math.floor(...): Rounds the result down to the nearest whole integer. This ensures you do not have a "partial" lane if the screen width isn't perfectly divisible by 16.
@@ -53,19 +53,44 @@ export class Game extends Scene
             right: Phaser.Input.Keyboard.KeyCodes.D,
         })
 
+        this.stopBuffer = 0;
+        this.lastXKey = 'none'
+        this.input.keyboard.on('keydown', (e) => {
+            if (e.code === 'KeyA' || e.code === 'ArrowLeft') {
+                this.lastXKey = 'left';
+            } else if (e.code === 'KeyD' || e.code === 'ArrowRight') {
+                this.lastXKey = 'right';
+            }
+            });
+
         // -- END OF CREATE --
     }
 
     update ()
     {
-        const playerSpeed = 160;
+        const playerSpeed = 160
+        const leftDown = this.wasd.left.isDown || this.cursors.left.isDown;
+        const rightDown = this.wasd.right.isDown || this.cursors.right.isDown;
 
-        if (this.cursors.left.isDown || this.wasd.left.isDown) {
-            this.player.setVelocityX(-playerSpeed);
-        } else if (this.cursors.right.isDown || this.wasd.right.isDown) {
+        if (leftDown && rightDown) {
+            this.stopBuffer = 0;
+            if (this.lastXKey === 'left'){
+                this.player.setVelocityX(-playerSpeed);
+            } else {
+                this.player.setVelocityX(playerSpeed);
+            } 
+        } else if (leftDown) {
+            this.stopBuffer = 0;
+            this.player.setVelocityX(-playerSpeed)
+        } else if (rightDown) {
+            this.stopBuffer = 0;
             this.player.setVelocityX(playerSpeed);
         } else {
-            this.player.setVelocityX(0);
+            this.stopBuffer++;
+            if (this.stopBuffer > 2) {
+                this.player.setVelocityX(0);
+                this.lastXKey = 'none';
+            }
         }
 
         // -- END OF UPDATE --
