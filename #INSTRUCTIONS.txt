@@ -1,3 +1,7 @@
+AI PROMPT:
+I am building a strict mental model of Phaser/Javascript. When explaining code, please refer to execution stacks, memory allocation, scope, and syntax rules rather than using metaphors. Please also explain any patterns and provide documentation when providing code snippets.
+
+
 Mechanic: “Dodge Falling Objects”
 
 Core Loop (1 sentence):
