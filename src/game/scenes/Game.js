@@ -20,6 +20,15 @@ export class Game extends Scene
         this.physics.add.existing(this.ground, true);
         this.physics.add.collider(this.player, this.ground);
         */
+
+       this.fallingObjects = this.physics.add.group({
+        defaultKey: 'object',
+        maxSize: 50
+       });
+
+       this.fallingObjects.body.setCircle(16);
+//       this.fallingObjects.body.setAllowGravity(false);
+
         
 
 
