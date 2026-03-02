@@ -11,18 +11,42 @@ export class Game extends Scene
     {
         this.cameras.main.setBackgroundColor(0x00ff00);
 
-        this.add.image(512, 384, 'background').setAlpha(0.5);
+        this.player = this.physics.add.sprite(320, 0, 'player');
+        this.player.setCollideWorldBounds(true);
+        Phaser.Display.Bounds.SetBottom(this.player, this.scale.height);
 
-        this.add.text(512, 384, 'Make something fun!\nand share it with us:\nsupport@phaser.io', {
-            fontFamily: 'Arial Black', fontSize: 38, color: '#ffffff',
-            stroke: '#000000', strokeThickness: 8,
-            align: 'center'
-        }).setOrigin(0.5);
+        /*
+        this.ground = this.add.tileSprite(0, 328);
+        this.physics.add.existing(this.ground, true);
+        this.physics.add.collider(this.player, this.ground);
+        */
+        
 
-        this.input.once('pointerdown', () => {
 
-            this.scene.start('GameOver');
+    
+        this.cursors = this.input.keyboard.createCursorKeys();
+        this.wasd = this.input.keyboard.addKeys ({
+            //up: Phaser.Input.Keyboard.KeyCodes.W,
+            //down: Phaser.Input.Keyboard.KeyCodes.S,
+            left: Phaser.Input.Keyboard.KeyCodes.A,
+            right: Phaser.Input.Keyboard.KeyCodes.D,
+        })
 
-        });
+        // -- END OF CREATE --
+    }
+
+    update ()
+    {
+        const playerSpeed = 160;
+
+        if (this.cursors.left.isDown || this.wasd.left.isDown) {
+            this.player.setVelocityX(-playerSpeed);
+        } else if (this.cursors.right.isDown || this.wasd.right.isDown) {
+            this.player.setVelocityX(playerSpeed);
+        } else {
+            this.player.setVelocityX(0);
+        }
+
+        // -- END OF UPDATE --
     }
 }

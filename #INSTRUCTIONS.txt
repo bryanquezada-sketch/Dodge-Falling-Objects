@@ -1,0 +1,22 @@
+Mechanic: “Dodge Falling Objects”
+
+Core Loop (1 sentence):
+
+Player moves left/right to avoid objects falling from the top of the screen; surviving for a set time or number of objects is the goal.
+
+Guidelines:
+
+Gray boxes or simple circles for objects and player.
+
+Only one object type for now.
+
+Timer or counter to define “success.”
+
+Test the loop for at least 5 uninterrupted minutes to see if collisions, movement, and object spawning feel consistent.
+
+Optional micro-tuning:
+
+Adjust player speed, spawn rate, or object size—but only after the core loop works.
+
+This is classic, small, and builds the “loop first, polish later” muscle.
+Once you have it stable, you can experiment with one tweak (speed, more objects, mini-score) tomorrow, but nothing else.
