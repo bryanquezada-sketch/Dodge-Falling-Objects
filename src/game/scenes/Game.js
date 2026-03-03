@@ -1,4 +1,5 @@
 import { Scene } from 'phaser';
+import FallingObject from './FallingObject';
 
 export class Game extends Scene
 {
@@ -31,11 +32,6 @@ export class Game extends Scene
             }
         });
 
-        this.fallingObjects = this.physics.add.group({
-            defaultKey: 'object',
-            maxSize: 50
-        });
-
 
         //Math.floor(...): Rounds the result down to the nearest whole integer. 
         //This ensures you do not have a "partial" lane if the screen width isn't perfectly divisible by 16.
@@ -52,23 +48,48 @@ export class Game extends Scene
             right: Phaser.Input.Keyboard.KeyCodes.D,
         });
 
-        this.input.keyboard.on('keydown-SPACE', this.spawnObjects, this);
-        this.input.keyboard.on('keydown', (event) => {
-            console.log("Key pressed:", event.key);
+        this.fallingObjects = this.physics.add.group({
+            classType: FallingObject,
+            runChildUpdate: true,
+            maxSize: -1
         });
+
+        this.time.addEvent({
+            delay: 100,
+            callback: this.spawnObject,
+            callbackScope: this,
+            loop: true
+        })
+        
         // -- END OF CREATE --
     }
 
-    spawnObjects ()
+    spawnObject ()
     {
-        console.log('SPACE IS HIT');
-        this.fallingObject = this.fallingObjects.get(Phaser.Math.RND.pick(this.spawnLanes), 0);
-        this.fallingObject.setActive(true);
-        this.fallingObject.setVisible(true);
-        this.fallingObject.body.setCircle(16);
+        const fallingSpeed = 200;
+        const fallingObject = this.fallingObjects.get(Phaser.Math.RND.pick(this.spawnLanes), -16);
+        
+        if (fallingObject) {
+            this.physics.world.enableBody(fallingObject);
+            fallingObject.setActive(true);
+            fallingObject.setVisible(true);
+            fallingObject.body.setCircle(16);
+            fallingObject.setVelocityY(fallingSpeed);
+        }
     }
+
+    recycleObject (obj)
+    {
+        this.fallingObjects.killAndHide(obj);
+        obj.body.stop();
+        this.physics.world.disableBody(obj.body);
+        
+    }
+
     update ()
     {
+        console.log('Active Objects: ', this.fallingObjects.countActive());
+
         const playerSpeed = 160
         const leftDown = this.wasd.left.isDown || this.cursors.left.isDown;
         const rightDown = this.wasd.right.isDown || this.cursors.right.isDown;
