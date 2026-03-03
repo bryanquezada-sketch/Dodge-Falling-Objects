@@ -10,7 +10,9 @@ export class Game extends Scene
 
     create ()
     {
-        this.cameras.main.setBackgroundColor(0x00ff00);
+        this.scene.launch('UIScene');
+        this.scene.bringToTop('UIScene');
+        this.cameras.main.setBackgroundColor(0x222222);
 
         this.player = this.physics.add.sprite(320, 0, 'player');
         this.player.setCollideWorldBounds(true);
@@ -21,6 +23,14 @@ export class Game extends Scene
         this.physics.add.existing(this.ground, true);
         this.physics.add.collider(this.player, this.ground);
         */
+
+        this.cursors = this.input.keyboard.createCursorKeys();
+        this.wasd = this.input.keyboard.addKeys ({
+            //up: Phaser.Input.Keyboard.KeyCodes.W,
+            //down: Phaser.Input.Keyboard.KeyCodes.S,
+            left: Phaser.Input.Keyboard.KeyCodes.A,
+            right: Phaser.Input.Keyboard.KeyCodes.D,
+        });
 
         this.stopBuffer = 0;
         this.lastXKey = 'none'
@@ -40,14 +50,6 @@ export class Game extends Scene
         //Array.from({ length: ... }): Creates a new array with a specific number of empty slots based on totalLanes.
         this.spawnLanes = Array.from({ length: this.totalLanes }, (v, i) => (i * 16) + 8);
 
-        this.cursors = this.input.keyboard.createCursorKeys();
-        this.wasd = this.input.keyboard.addKeys ({
-            //up: Phaser.Input.Keyboard.KeyCodes.W,
-            //down: Phaser.Input.Keyboard.KeyCodes.S,
-            left: Phaser.Input.Keyboard.KeyCodes.A,
-            right: Phaser.Input.Keyboard.KeyCodes.D,
-        });
-
         this.fallingObjects = this.physics.add.group({
             classType: FallingObject,
             runChildUpdate: true,
@@ -60,8 +62,58 @@ export class Game extends Scene
             callbackScope: this,
             loop: true
         })
+
+        this.physics.add.overlap(
+            this.player, 
+            this.fallingObjects, 
+            this.handleHit, 
+            this.checkCooldown, 
+            this
+            );
         
+        this.hp = 3;
+        
+        this.time.addEvent({
+            delay: 1000,
+            callback: this.tick,
+            callbackScope: this,
+            loop: true
+        });
         // -- END OF CREATE --
+    }
+
+    tick()
+    {
+        this.timeLeft--;
+        this.events.emit('updateTime', this.timeLeft);
+
+        if (this.timeLeft <= 0) {
+            //this.handleGameOver //THE WIN!
+        }
+    }
+
+    checkCooldown(player, object)
+    {
+        const currentTime = this.time.now;
+
+        if (!player.lastHitTime || currentTime > player.lastHitTime + 1000) {
+            return true;
+        }
+
+        return false;
+    }
+
+    handleHit (player, object)
+    {
+        this.hp -= 1;
+        this.events.emit('deductHP', this.hp);
+        player.lastHitTime = this.time.now;
+        player.setAlpha(0.5);
+        this.time.delayedCall(1000, () => player.setAlpha(1));
+        if (this.hp === 0) {
+            this.events.emit('playerLost');
+            //this.input.keyboard.enabled = false;
+        }
     }
 
     spawnObject ()
