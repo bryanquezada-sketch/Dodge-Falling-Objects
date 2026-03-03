@@ -56,7 +56,7 @@ export class Game extends Scene
             maxSize: -1
         });
 
-        this.time.addEvent({
+        this.spawnTimer = this.time.addEvent({
             delay: 100,
             callback: this.spawnObject,
             callbackScope: this,
@@ -72,8 +72,10 @@ export class Game extends Scene
             );
         
         this.hp = 3;
+
+        this.timeLeft = 5;
         
-        this.time.addEvent({
+        this.tickTimer = this.time.addEvent({
             delay: 1000,
             callback: this.tick,
             callbackScope: this,
@@ -82,13 +84,24 @@ export class Game extends Scene
         // -- END OF CREATE --
     }
 
+    handleWin()
+    {
+        this.spawnTimer.remove();
+        this.tickTimer.remove();
+        this.fallingObjects.clear(true, true);
+        this.events.emit('playerWon')
+        //this.input.keyboard.enabled = false;
+        //this.player.setVelocity(0);
+        //this.physics.world.pause();
+    }
+
     tick()
     {
         this.timeLeft--;
         this.events.emit('updateTime', this.timeLeft);
 
         if (this.timeLeft <= 0) {
-            //this.handleGameOver //THE WIN!
+            this.handleWin() //THE WIN!
         }
     }
 
