@@ -7,6 +7,11 @@ export class Game extends Scene
     {
         super('Game');
     }
+    
+    // ---- NOTE TO SELF: FIGURE OUT HOW TO CHANGE TIMER TO MINUTE/SECONDS/MILISECONDS FORMAT --- 
+    // You could probably use another timer event and just divide as appropriate.
+    // Look into Manual Delta, that looks cool too.
+    // Tweens to handle time? Animations anyway!
 
     create ()
     {
@@ -84,6 +89,13 @@ export class Game extends Scene
         // -- END OF CREATE --
     }
 
+    handleLose()
+    {
+        this.tickTimer.remove();
+        this.input.keyboard.enabled = false;
+        this.player.setVelocity(0);
+    }
+
     handleWin()
     {
         this.spawnTimer.remove();
@@ -125,7 +137,7 @@ export class Game extends Scene
         this.time.delayedCall(1000, () => player.setAlpha(1));
         if (this.hp === 0) {
             this.events.emit('playerLost');
-            //this.input.keyboard.enabled = false;
+            this.handleLose();
         }
     }
 
